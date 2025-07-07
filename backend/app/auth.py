@@ -14,7 +14,7 @@ router = APIRouter()
 @router.post("/register", response_model=Token)
 def register(user_data: UserRegister, db: Session = Depends(get_db)):
     user = create_user(db, user_data.username, user_data.password, user_data.is_api_user)
-    token = create_access_token(data={"sub": str(user.id)})
+    token = create_access_token(data={"sub": str(user.id), "username": user.username})
 
     return {
         "access_token": token,
@@ -35,7 +35,7 @@ def login(
     if not user:
         raise HTTPException(status_code=401, detail="Неверные учетные данные")
 
-    token = create_access_token(data={"sub": str(user.id)})
+    token = create_access_token(data={"sub": str(user.id), "username": user.username})
     return {
         "access_token": token,
         "token_type": "bearer",

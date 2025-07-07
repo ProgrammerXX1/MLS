@@ -58,6 +58,9 @@ class APIKey(Base):
 
     user = relationship("User", back_populates="api_keys")
 
+    last_used_at = Column(DateTime, nullable=True)
+    usage_24h = Column(Integer, default=0)
+
 class UserRole(str, Enum):
     admin = "admin"
     coder = "coder"

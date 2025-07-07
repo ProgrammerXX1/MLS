@@ -1,7 +1,7 @@
-from pydantic import BaseModel
+from pydantic import BaseModel,Field
 
 class UserRegister(BaseModel):
-    username: str
+    username: str = Field(min_length=1)
     password: str
     is_api_user: bool = False
 

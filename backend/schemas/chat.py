@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Literal
 
 class ChatLogItem(BaseModel):
     request_text: str
@@ -12,9 +12,14 @@ class ChatLogItem(BaseModel):
     class Config:
         from_attributes = True
 
+class ChatMessage(BaseModel):
+    role: Literal["user", "assistant", "system"]
+    content: str
+
 class ChatRequest(BaseModel):
-    message: str = Field(..., max_length=5000)
-    title: Optional[str] = Field(None, max_length=100)
+    messages: List[ChatMessage]
+    title: Optional[str] = Field(None, max_length=100),
+    model: Optional[str] = None
 
 class ChatCreate(BaseModel):
     title: Optional[str] = Field("Новый чат", max_length=100)

@@ -30,19 +30,27 @@ def create_chat(chat: ChatCreate, db: Session = Depends(get_db), user=Depends(ge
     db.refresh(new_chat)
     return new_chat
 
-
-# ✅ Отправка сообщения (в существующий чат)
 @router.post("/chat/{chat_id}/send", response_model=MessageResponse)
-def send_message(chat_id: int, request: ChatRequest, db: Session = Depends(get_db), user=Depends(get_current_user)):
+def send_message(
+    chat_id: int,
+    request: ChatRequest,
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user),
+):
     chat = db.query(Chat).filter(Chat.id == chat_id, Chat.user_id == user.id).first()
     if not chat:
         raise HTTPException(status_code=404, detail="Чат не найден")
 
+    if not request.messages or not isinstance(request.messages, list):
+        raise HTTPException(status_code=400, detail="Поле 'messages' должно быть непустым списком")
+
     start = time.time()
+
     try:
-        response_text = generate_response(request.message)
+        # ⬇️ Отправка всех сообщений с ролями
+        response_text = generate_response([msg.model_dump() for msg in request.messages])
     except Exception as e:
-        logger.exception("❌ Ошибка генерации ответа")
+        logger.exception("❌ Ошибка генерации ответа от модели")
         raise HTTPException(status_code=500, detail="Ошибка генерации ответа")
 
     if not response_text.strip() or "[Empty response]" in response_text or "Ошибка" in response_text:
@@ -50,15 +58,21 @@ def send_message(chat_id: int, request: ChatRequest, db: Session = Depends(get_d
 
     latency = int((time.time() - start) * 1000)
 
+    # 🧠 Извлекаем последнее сообщение от пользователя
+    last_user_msg = next(
+        (msg.content for msg in reversed(request.messages) if msg.role == "user"), ""
+    )
+
     log = ChatLog(
         user_id=user.id,
         chat_id=chat_id,
         api_key=user.api_key,
-        request_text=request.message,
+        request_text=last_user_msg,
         response_text=response_text,
         status="success",
-        latency_ms=latency
+        latency_ms=latency,
     )
+
     db.add(log)
     db.commit()
     db.refresh(log)
@@ -68,8 +82,9 @@ def send_message(chat_id: int, request: ChatRequest, db: Session = Depends(get_d
         response_text=log.response_text,
         timestamp=log.timestamp,
         latency_ms=log.latency_ms,
-        chat_id=chat_id
+        chat_id=chat_id,
     )
+
 
 
 # ✅ Получение истории по одному чату

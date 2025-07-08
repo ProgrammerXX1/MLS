@@ -1,9 +1,8 @@
 import requests
-import json
 import logging
 import os
-
 from dotenv import load_dotenv
+from typing import List, Dict
 
 load_dotenv()
 
@@ -14,15 +13,20 @@ OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3:latest")
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-def generate_response(message: str) -> str:
-    logger.info(f"📨 Запрос к модели: {message}")
-    
+def generate_response(messages: List[Dict[str, str]]) -> str:
+    """
+    Отправляет список сообщений с ролями (system, user, assistant) в Ollama /api/chat
+    """
+    logger.info("📨 Отправка сообщений модели:")
+    for m in messages:
+        logger.info(f" - {m['role']}: {m['content'][:100]}")
+
     try:
         response = requests.post(
-            f"{PORT_SERVER}:{OLLAMA_PORT}/api/chat", 
+            f"{PORT_SERVER}:{OLLAMA_PORT}/api/chat",
             json={
-                "model": "llama3:latest",  # или твоя конкретная модель
-                "messages": [{"role": "user", "content": message}],
+                "model": OLLAMA_MODEL,
+                "messages": messages,
                 "stream": False
             },
             timeout=60

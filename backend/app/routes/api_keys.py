@@ -17,6 +17,8 @@ from schemas.chat import ChatRequest, MessageResponse
 
 import time
 
+import subprocess
+
 pynvml.nvmlInit()
 
 router = APIRouter()
@@ -143,6 +145,7 @@ def get_users_activity(db: Session = Depends(get_db), user=Depends(require_roles
 
 @router.post("/api/generate", response_model=MessageResponse)
 def generate_with_user_key(
+
     request: ChatRequest,
     db: Session = Depends(get_db),
     user=Depends(verify_user_api_key)
@@ -174,3 +177,13 @@ def generate_with_user_key(
         latency_ms=latency,
         chat_id=None
     )
+
+@router.get("/models")
+def list_models():
+    try:
+        result = subprocess.run(["ollama", "list"], capture_output=True, text=True)
+        lines = result.stdout.strip().split("\n")[1:]  # Пропускаем заголовок
+        models = [line.split()[0] for line in lines]
+        return {"models": models}
+    except Exception as e:
+        return {"error": str(e)}

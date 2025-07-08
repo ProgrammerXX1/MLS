@@ -5,7 +5,7 @@ import time
 import logging
 
 from services.ml import generate_response
-from db.models import Chat, ChatLog
+from db.models import Chat, ChatLog, User
 from core.dependencies import get_db, get_current_user
 from schemas.chat import (
     ChatRequest, ChatResponse, ChatLogItem,
@@ -109,6 +109,33 @@ def get_chat_list(db: Session = Depends(get_db), user=Depends(get_current_user))
     return chats
 
 
+@router.get("/chat/single", response_model=ChatOut)
+async def get_or_create_single_chat(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    # Пытаемся найти чат с title="single"
+    chat = (
+        db.query(Chat)
+        .filter(Chat.user_id == user.id, Chat.title == "single")
+        .first()
+    )
+
+    if chat:
+        # Очищаем связанные сообщения
+        db.query(ChatLog).filter(ChatLog.chat_id == chat.id).delete()
+        db.commit()
+        return chat  # ← автоматическая сериализация
+
+    # Создаём новый "одноразовый" чат
+    new_chat = Chat(user_id=user.id, title="single", status="Single")
+    db.add(new_chat)
+    db.commit()
+    db.refresh(new_chat)
+    return new_chat  # ← тоже сериализуется в ChatOut
+
+
+
 # ✅ Получение одного чата
 @router.get("/chat/{chat_id}", response_model=ChatOut)
 def get_chat(chat_id: int, db: Session = Depends(get_db), user=Depends(get_current_user)):
@@ -187,3 +214,5 @@ def save_chat_messages(
         ))
     db.commit()
     return {"status": "success", "count": len(messages)}
+
+

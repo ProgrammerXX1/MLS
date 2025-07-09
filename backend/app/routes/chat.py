@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List, Union
 import time
 import logging
+from datetime import datetime
 
 from services.ml import generate_response
 from db.models import Chat, ChatLog, User
@@ -35,46 +36,66 @@ def send_message(
     db: Session = Depends(get_db),
     user=Depends(get_current_user),
 ):
+    # Проверка чата
     chat = db.query(Chat).filter(Chat.id == chat_id, Chat.user_id == user.id).first()
     if not chat:
         raise HTTPException(status_code=404, detail="Чат не найден")
 
+    # Проверка сообщений
     if not request.messages or not isinstance(request.messages, list):
         raise HTTPException(status_code=400, detail="Поле 'messages' должно быть непустым списком")
 
     start = time.time()
+    status = "success"
 
     try:
-        # ⬇️ Отправка всех сообщений с ролями
-        response_text = generate_response([msg.model_dump() for msg in request.messages])
+        # Отправка сообщений в модель
+        response_text = generate_response(
+            messages=[msg.model_dump() for msg in request.messages],
+            model=request.model,
+            temperature=request.temperature,
+            max_tokens=request.max_tokens,
+            stream=request.stream,
+            response_format=request.response_format,
+            moderation=request.moderation,
+            top_p=request.top_p,
+            seed=request.seed,
+            stop=request.stop,
+        )
     except Exception as e:
         logger.exception("❌ Ошибка генерации ответа от модели")
-        raise HTTPException(status_code=500, detail="Ошибка генерации ответа")
+        response_text = f"Ошибка генерации: {str(e)}"
+        status = "error"
 
+    # Если ответ от модели пустой или странный
     if not response_text.strip() or "[Empty response]" in response_text or "Ошибка" in response_text:
         response_text = "⚠️ Модель не смогла ответить. Попробуйте переформулировать запрос."
+        status = "error"
 
+    # Метрики
     latency = int((time.time() - start) * 1000)
 
-    # 🧠 Извлекаем последнее сообщение от пользователя
+    # Последнее сообщение от пользователя
     last_user_msg = next(
         (msg.content for msg in reversed(request.messages) if msg.role == "user"), ""
     )
 
+    # Логирование в базу
     log = ChatLog(
         user_id=user.id,
-        chat_id=chat_id,
-        api_key=user.api_key,
+        api_key=user.api_key or "",
         request_text=last_user_msg,
         response_text=response_text,
-        status="success",
+        model_name=request.model,  # ✅ обязательно передаётся из запроса
+        status=status,
         latency_ms=latency,
-    )
-
+        timestamp=datetime.utcnow(),
+        )
     db.add(log)
     db.commit()
     db.refresh(log)
 
+    # Ответ клиенту
     return MessageResponse(
         request_text=log.request_text,
         response_text=log.response_text,
@@ -131,7 +152,6 @@ async def get_or_create_single_chat(
 
     if chat:
         # Очищаем связанные сообщения
-        db.query(ChatLog).filter(ChatLog.chat_id == chat.id).delete()
         db.commit()
         return chat  # ← автоматическая сериализация
 

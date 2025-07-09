@@ -1,9 +1,9 @@
 from fastapi import FastAPI
-from app import auth
+from app import auth, logs
 from fastapi.openapi.utils import get_openapi
 from fastapi.middleware.cors import CORSMiddleware
 import subprocess
-from app.routes import api_keys, chat
+from app.routes import api_keys, chat 
 from db.session import engine
 from alembic.config import Config
 from alembic import command
@@ -47,7 +47,7 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/auth", tags=["Auth"])
 app.include_router(chat.router, tags=["Chat"])
 app.include_router(api_keys.router, tags=["API Keys"])
-
+app.include_router(logs.router, tags=["Dashboard"])
 # @app.on_event("startup")
 # def list_routes():
 #     print("📍 Список маршрутов:")

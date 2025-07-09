@@ -18,8 +18,16 @@ class ChatMessage(BaseModel):
 
 class ChatRequest(BaseModel):
     messages: List[ChatMessage]
-    title: Optional[str] = Field(None, max_length=100),
+    title: Optional[str] = Field(None, max_length=100)
     model: Optional[str] = None
+    temperature: Optional[float] = 1.0
+    max_tokens: Optional[int] = 1024
+    stream: Optional[bool] = False
+    response_format: Optional[str] = "text"
+    moderation: Optional[bool] = False
+    top_p: Optional[float] = 0.75
+    seed: Optional[str] = None
+    stop: Optional[str] = None
 
 class ChatCreate(BaseModel):
     title: Optional[str] = Field("Новый чат", max_length=100)
@@ -59,3 +67,16 @@ class ChatOut(BaseModel):
 class ChatHistoryItem(BaseModel):
     question: str
     answer: str
+
+class ChatLogOut(BaseModel):
+    created: str
+    model: str
+    apiKey: str
+    code: int
+    ttft: str
+    latency: str
+    inputTokens: int
+    outputTokens: int
+    audioSeconds: str
+    requestId: str
+    error: str

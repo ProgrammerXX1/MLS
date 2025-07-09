@@ -29,25 +29,23 @@ class Chat(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="chats")
-    messages = relationship("ChatLog", back_populates="chat", cascade="all, delete")
+
 
 class ChatLog(Base):
     __tablename__ = "chat_logs"
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), index=True)
-    chat_id = Column(Integer, ForeignKey("chats.id"), nullable=True, index=True)  # Индекс для оптимизации
     api_key = Column(String, index=True)
     request_text = Column(Text, nullable=False)
     response_text = Column(Text, nullable=False)
-    status = Column(String(20), default="success")  # Ограничение длины
+    model_name = Column(String(100), nullable=True)  # ✅ Добавлено
+    status = Column(String(20), default="success")
     latency_ms = Column(Integer)
     timestamp = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="chat_logs")
-    chat = relationship("Chat", back_populates="messages")
 
-    # db/models.py
 class APIKey(Base):
     __tablename__ = "api_keys"
 

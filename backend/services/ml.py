@@ -2,7 +2,7 @@ import requests
 import logging
 import os
 from dotenv import load_dotenv
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 load_dotenv()
 
@@ -13,22 +13,49 @@ OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3:latest")
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-def generate_response(messages: List[Dict[str, str]]) -> str:
+from typing import List, Dict, Optional
+
+def generate_response(
+    messages: List[Dict[str, str]],
+    model: Optional[str] = None,
+    temperature: Optional[float] = 1.0,
+    max_tokens: Optional[int] = 1024,
+    stream: Optional[bool] = False,
+    response_format: Optional[str] = "text",
+    moderation: Optional[bool] = False,
+    top_p: Optional[float] = 0.75,
+    seed: Optional[str] = None,
+    stop: Optional[str] = None,
+) -> str:
     """
-    Отправляет список сообщений с ролями (system, user, assistant) в Ollama /api/chat
+    Отправляет список сообщений с параметрами в Ollama /api/chat
     """
     logger.info("📨 Отправка сообщений модели:")
     for m in messages:
         logger.info(f" - {m['role']}: {m['content'][:100]}")
 
+    payload = {
+        "model": model or OLLAMA_MODEL,
+        "messages": messages,
+        "stream": stream,
+        "options": {
+            "temperature": temperature,
+            "top_p": top_p,
+            "num_predict": max_tokens,
+        }
+    }
+
+    if seed:
+        payload["options"]["seed"] = seed
+    if stop:
+        payload["options"]["stop"] = [stop]  # Ollama ожидает список
+
+    logger.info(f"🧪 Payload к модели: {payload}")
+
     try:
         response = requests.post(
             f"{PORT_SERVER}:{OLLAMA_PORT}/api/chat",
-            json={
-                "model": OLLAMA_MODEL,
-                "messages": messages,
-                "stream": False
-            },
+            json=payload,
             timeout=60
         )
 

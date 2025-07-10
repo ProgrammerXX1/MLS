@@ -12,3 +12,5 @@ python-multipart
 psutil
 torch
 pynvml
+celery
+redis

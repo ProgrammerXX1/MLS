@@ -8,7 +8,7 @@ import secrets
 
 from core.dependencies import get_db, get_current_user
 from core.API_dependencies import get_api_user, require_roles, verify_user_api_key
-from db.models import User, Chat, ChatLog, APIKey, UserRole
+from db.models import User, ChatLog, APIKey, UserRole
 from schemas.api_keys import APIKeyOut
 from typing import List
 import pynvml

@@ -67,7 +67,6 @@
 </div>
 </template>
 <script setup lang="ts">
-
 import { inject, ref, computed, onMounted } from 'vue'
 import type { Ref } from 'vue'
 import { useNuxtApp } from '#app'
@@ -84,9 +83,9 @@ interface Message {
 
 const props = defineProps<{
   mode: 'chat' | 'studio'
-  model: string              // ✅ получаем модель
+  model: string
   onStudioResponse?: (text: string) => void
-   modelSettings: {
+  modelSettings: {
     temperature: number
     maxTokens: number
     stream: boolean
@@ -107,7 +106,6 @@ const messages = computed({
   }
 })
 
-const chatId = ref<number | null>(null)
 let idCounter = messages.value.length > 0 ? Math.max(...messages.value.map(m => m.id)) + 1 : 1
 let roleStep = 0
 
@@ -151,64 +149,20 @@ const clearMessages = () => {
   idCounter = 1
   roleStep = 0
 }
+
 onMounted(() => {
   store.clearMessages()
 })
-onMounted(async () => {
-  await loadOrCreateChat()
-})
-
-const loadOrCreateChat = async () => {
-  try {
-    const token = localStorage.getItem('access_token')
-    if (!token) {
-      console.warn('[loadOrCreateChat] Token not found')
-      return
-    }
-
-    const res = await $api.get('/chat/single', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-
-    if (res.data?.id) {
-      chatId.value = res.data.id
-      console.log('[loadOrCreateChat] Chat ID set:', chatId.value)
-    } else {
-      console.warn('[loadOrCreateChat] No chat ID in response:', res.data)
-    }
-  } catch (err) {
-    console.error('[loadOrCreateChat] Ошибка при получении чата:', err)
-  }
-}
 
 const submitMessages = async () => {
   console.log('[Submit] Start')
 
-  // 1️⃣ Проверка на непустое сообщение
   const hasValidMessages = messages.value.some(msg => msg.content.trim() !== '')
-  if (!hasValidMessages) {
-    console.warn('[Submit] Нет ни одного непустого сообщения')
-    return
-  }
+  if (!hasValidMessages) return
 
-  // 2️⃣ Проверка на хотя бы один user prompt
   const hasUserInput = messages.value.some(msg => msg.role === 'user' && msg.content.trim() !== '')
-  if (!hasUserInput) {
-    console.warn('[Submit] Нет пользовательского сообщения')
-    return
-  }
+  if (!hasUserInput) return
 
-  // 3️⃣ Проверка chatId
-  if (!chatId.value) {
-    console.log('[Submit] No chatId — creating or loading chat...')
-    await loadOrCreateChat()
-  }
-  if (!chatId.value) {
-    console.warn('[Submit] Still no chatId after attempt.')
-    return
-  }
-
-  // 4️⃣ Проверка токена
   const token = localStorage.getItem('access_token')
   if (!token) {
     console.warn('[Submit] No auth token found.')
@@ -216,7 +170,6 @@ const submitMessages = async () => {
   }
 
   try {
-    // 5️⃣ Удаляем пустые assistant-сообщения в конце
     while (
       messages.value.length &&
       messages.value[messages.value.length - 1].role === 'assistant' &&
@@ -225,7 +178,6 @@ const submitMessages = async () => {
       messages.value.pop()
     }
 
-    // 6️⃣ Подготовка данных
     const payloadMessages = messages.value
       .filter(msg => msg.content.trim() !== '')
       .map(msg => ({
@@ -234,49 +186,41 @@ const submitMessages = async () => {
       }))
 
     const payload = {
-  messages: payloadMessages,
-  model: props.model, // 🔥 выбранная модель
-  temperature: props.modelSettings.temperature,
-  max_tokens: props.modelSettings.maxTokens,
-  stream: props.modelSettings.stream,
-  response_format: props.modelSettings.jsonMode ? 'json' : 'text',
-  moderation: props.modelSettings.moderation,
-  top_p: props.modelSettings.topP,
-  seed: props.modelSettings.seed || undefined,
-  stop: props.modelSettings.stopSequence || undefined,
-}
+      messages: payloadMessages,
+      model: props.model,
+      temperature: props.modelSettings.temperature,
+      max_tokens: props.modelSettings.maxTokens,
+      stream: props.modelSettings.stream,
+      response_format: props.modelSettings.jsonMode ? 'json' : 'text',
+      moderation: props.modelSettings.moderation,
+      top_p: props.modelSettings.topP,
+      seed: props.modelSettings.seed || undefined,
+      stop: props.modelSettings.stopSequence || undefined,
+    }
 
-    
-    console.log('[Submit] Sending to backend:', payload)
-
-    const res = await $api.post(
-      `/chat/${chatId.value}/send`,
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    )
+    const res = await $api.post('/chat/send', payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
 
     const reply = res.data.response_text || 'Нет ответа от модели'
     console.log('[Submit] Received reply:', reply)
 
-    // 7️⃣ Возвращаем только в Studio
     if (props.onStudioResponse) {
       props.onStudioResponse(reply)
-      console.log('[Submit] Studio response delivered')
     } else {
-      console.log('[Submit] No onStudioResponse handler found')
+      messages.value.push({
+        id: idCounter++,
+        role: 'assistant',
+        content: reply,
+      })
     }
-
   } catch (err) {
     console.error('[Submit] Ошибка отправки:', err)
   }
 }
 
-
 defineExpose({ submitMessages })
 </script>
-

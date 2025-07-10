@@ -1,6 +1,3 @@
-import { useApiKeyStore } from '~/stores/apiKeys'
-import { apiFetch } from '~/utils/api'
-
 export async function useApiKeys() {
   const store = useApiKeyStore()
   const response = await apiFetch('/api/keys/list')
@@ -15,4 +12,6 @@ export async function useApiKeys() {
   }))
 
   store.setKeys(adapted)
+
+  return adapted // ⬅️ добавь это
 }

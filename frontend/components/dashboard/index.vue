@@ -1,4 +1,4 @@
 <script setup lang="ts">
 const router = useRouter()
-router.replace('/dashboard/metrics')
+router.replace('/dashboard/logs')
 </script>

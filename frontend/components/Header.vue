@@ -11,7 +11,7 @@
       <nav class="flex items-center space-x-10 text-sm text-neutral-300">
         <NuxtLink to="/" class="hover:text-red-500" :class="{ 'text-orange-500': route.path === '/' }">Playground</NuxtLink>
         <NuxtLink to="/api_keys" class="hover:text-red-500" :class="{ 'text-orange-500': route.path === '/api_keys' }">API Keys</NuxtLink>
-        <NuxtLink to="/dashboard/metrics" class="hover:text-red-500" :class="{ 'text-orange-500': route.path === '/dashboard/metrics' }">Dashboard</NuxtLink>
+        <NuxtLink to="/dashboard/logs" class="hover:text-red-500" :class="{ 'text-orange-500': route.path === '/dashboard/logs' }">Dashboard</NuxtLink>
         <NuxtLink to="/in_dev" class="hover:text-red-500" :class="{ 'text-orange-500': route.path === '/in_dev' }">Docs</NuxtLink>
       </nav>
 

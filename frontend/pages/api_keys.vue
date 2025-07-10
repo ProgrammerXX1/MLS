@@ -70,17 +70,19 @@ import Header from '~/components/Header.vue'
 import { useApiKeys } from '~/composables/useApiKeys'
 import { useApiKeyStore } from '~/stores/apiKeys'
 import { apiFetch } from '~/utils/api'
+import type { ApiKey } from '~/stores/apiKeys' // ✅ добавлен импорт типа
 
-// Инициализация стора
 const apiKeyStore = useApiKeyStore()
+const keys = ref<ApiKey[]>([])
 const isLoading = ref(false)
 const error = ref('')
 
-// Загрузка ключей один раз при монтировании
+// Загрузка ключей при монтировании
 onMounted(async () => {
   isLoading.value = true
   try {
-    await useApiKeys()
+    await useApiKeys() // эта функция запишет ключи в store
+    keys.value = apiKeyStore.keys // читаем их отсюда
   } catch (err: any) {
     error.value = err?.message || 'Failed to load API keys'
   } finally {
@@ -99,7 +101,7 @@ function formatDate(dateStr: string | null): string {
 async function createKey() {
   try {
     const newKey = await apiFetch('/api/keys/create', { method: 'POST' })
-    const formattedKey = {
+    const formattedKey: ApiKey = {
       id: newKey.id,
       name: `key-${newKey.id}`,
       secret: `gsk_...${newKey.key.slice(-6)}`,
@@ -108,6 +110,7 @@ async function createKey() {
       usage: newKey.usage_24h ?? 0
     }
     apiKeyStore.setKeys([formattedKey, ...apiKeyStore.keys])
+    keys.value = apiKeyStore.keys // обновляем локальный список
   } catch (err) {
     alert('Failed to create key')
   }
@@ -119,6 +122,7 @@ async function deleteKey(id: number) {
     await apiFetch(`/api/keys/${id}`, { method: 'DELETE' })
     const updated = apiKeyStore.keys.filter(k => k.id !== id)
     apiKeyStore.setKeys(updated)
+    keys.value = updated
   } catch (err) {
     alert('Failed to delete key')
   }

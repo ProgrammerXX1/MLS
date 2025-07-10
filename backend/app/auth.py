@@ -9,7 +9,6 @@ from core.dependencies import get_db
 
 router = APIRouter()
 
-
 # ✅ Регистрация пользователя
 @router.post("/register", response_model=Token)
 def register(user_data: UserRegister, db: Session = Depends(get_db)):
@@ -21,7 +20,6 @@ def register(user_data: UserRegister, db: Session = Depends(get_db)):
         "token_type": "bearer",
         "username": user.username
     }
-
 
 # ✅ Вход пользователя
 from fastapi.security import OAuth2PasswordRequestForm

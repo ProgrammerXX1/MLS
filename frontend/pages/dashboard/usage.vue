@@ -115,11 +115,9 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
-import { ref, computed, watchEffect } from 'vue'
+import { ref, computed, watchEffect, onMounted } from 'vue'
 import { format } from 'date-fns'
-import { onMounted } from 'vue'
 import Header from '~/components/Header.vue'
 import Sidebar from '~/components/Sidebar_Dash.vue'
 import LineChart from '~/components/LineChart.vue'
@@ -127,23 +125,16 @@ import LineChart from '~/components/LineChart.vue'
 import { useLogStore } from '~/stores/dashboard'
 import { useApiKeyStore } from '~/stores/apiKeys'
 import { useApiKeys } from '~/composables/useApiKeys'
-
 import { useUserStore } from '~/stores/user'
-const userStore = useUserStore()
 
 defineOptions({ inheritAttrs: false })
 
-
-// === Store ===
+// === Stores ===
 const apiKeyStore = useApiKeyStore()
-
-// 🔄 Загрузка ключей, если ещё не загружены
-onMounted(async () => {
-  await useApiKeys() // ✅ единый вызов, без дублирования
-})
-// === Dashboard logic ===
 const logStore = useLogStore()
+const userStore = useUserStore()
 
+// === Стейты ===
 const currentView = ref<'cost' | 'activity'>('cost')
 const currentMonth = ref('July')
 const currentPeriod = ref(0)
@@ -170,7 +161,17 @@ type ModelChartData = {
   tokensPerUnit: Record<string, number>
 }
 
-// 🔄 Обновляем графики при изменении логов или детализации
+// 🔄 Загрузка данных при монтировании
+onMounted(async () => {
+  await useApiKeys()
+
+  // 🔄 Загрузка логов, если они ещё не загружены
+  if (logStore.logs.length === 0 && typeof logStore.fetchLogs === 'function') {
+    await logStore.fetchLogs()
+  }
+})
+
+// 🔄 Обновление графиков при изменении логов или детализации
 watchEffect(() => {
   const result: Record<string, ModelChartData> = {}
 
@@ -201,7 +202,7 @@ watchEffect(() => {
   modelCharts.value = Object.values(result)
 })
 
-// 📊 Подготовка данных для LineChart
+// 📊 Данные для LineChart
 const getLineChartData = (modelData: ModelChartData) => {
   let allKeys = Object.keys(modelData.requests).sort()
 
@@ -236,8 +237,8 @@ const getLineChartData = (modelData: ModelChartData) => {
     ]
   }
 }
-// Опции для чарта (можно оставить без изменений, если уже есть ниже)
 </script>
+
 
 <style scoped>
 button:hover {

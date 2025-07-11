@@ -2,11 +2,11 @@
 from typing import List
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from core.dependencies import get_db
-from db.models import ChatLog
+from app.core.dependencies import get_db
+from app.db.models import ChatLog
 from uuid import uuid4
 from datetime import datetime
-from schemas.chat import ChatLogOut
+from app.schemas.chat import ChatLogOut
 
 router = APIRouter()
 

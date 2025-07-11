@@ -6,14 +6,14 @@ import psutil
 import torch
 import secrets
 
-from core.dependencies import get_db, get_current_user
-from core.API_dependencies import get_api_user, require_roles, verify_user_api_key
-from db.models import User, ChatLog, APIKey, UserRole
-from schemas.api_keys import APIKeyOut
+from app.core.dependencies import get_db, get_current_user
+from app.core.API_dependencies import get_api_user, require_roles, verify_user_api_key
+from app.db.models import User, ChatLog, APIKey, UserRole
+from app.schemas.api_keys import APIKeyOut
 from typing import List
 import pynvml
-from services.ml import generate_response
-from schemas.chat import ChatRequest, MessageResponse
+from app.services.ml import generate_response
+from app.schemas.chat import ChatRequest, MessageResponse
 
 import time
 

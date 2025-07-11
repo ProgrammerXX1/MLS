@@ -1,9 +1,9 @@
 from fastapi import Depends, HTTPException, Header, status
 from sqlalchemy.orm import Session
-from db.session import SessionLocal
-from db.models import User, APIKey, UserRole
+from app.db.session import SessionLocal
+from app.db.models import User, APIKey, UserRole
 from starlette.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
-from core.dependencies import get_current_user
+from app.core.dependencies import get_current_user
 
 def get_db():
     db = SessionLocal()

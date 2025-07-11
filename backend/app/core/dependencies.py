@@ -1,8 +1,8 @@
 from fastapi import Depends, HTTPException, Header, status
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
-from db.session import SessionLocal
-from db.models import User, UserRole
+from app.db.session import SessionLocal
+from app.db.models import User, UserRole
 import os
 from enum import Enum
 

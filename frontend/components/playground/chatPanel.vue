@@ -190,7 +190,7 @@ const submitMessages = async () => {
       model: props.model,
       temperature: props.modelSettings.temperature,
       max_tokens: props.modelSettings.maxTokens,
-      stream: props.modelSettings.stream,
+      stream: false,  // ❗ стрим отключаем при async-режиме
       response_format: props.modelSettings.jsonMode ? 'json' : 'text',
       moderation: props.modelSettings.moderation,
       top_p: props.modelSettings.topP,
@@ -205,8 +205,11 @@ const submitMessages = async () => {
       },
     })
 
-    const reply = res.data.response_text || 'Нет ответа от модели'
-    console.log('[Submit] Received reply:', reply)
+    const taskId = res.data.task_id
+    console.log('[Submit] Task ID получен:', taskId)
+
+    const reply = await pollTaskResult(taskId)
+    console.log('[Submit] Ответ от воркера:', reply)
 
     if (props.onStudioResponse) {
       props.onStudioResponse(reply)
@@ -217,10 +220,32 @@ const submitMessages = async () => {
         content: reply,
       })
     }
+
   } catch (err) {
     console.error('[Submit] Ошибка отправки:', err)
   }
 }
+async function pollTaskResult(taskId: string): Promise<string> {
+  const maxRetries = 30
+  const delay = 1000 // 1 секунда между попытками
+
+  for (let i = 0; i < maxRetries; i++) {
+    const res = await $api.get(`/chat/result/${taskId}`)
+
+    if (res.data.status === 'done') {
+      return res.data.response_text
+    }
+
+    if (res.data.status === 'failed') {
+      return '⚠️ Ошибка при выполнении задачи'
+    }
+
+    await new Promise(resolve => setTimeout(resolve, delay))
+  }
+
+  return '⚠️ Истекло время ожидания ответа от модели'
+}
+
 
 defineExpose({ submitMessages })
 </script>

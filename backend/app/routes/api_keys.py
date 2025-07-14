@@ -1,10 +1,13 @@
 # routes/api_keys.py
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 import psutil
 import secrets
+from celery.result import AsyncResult
+from app.config.celery_app import celery_app
 
+from app.tasks import generate_response_task,  generate_response_api_task
 from app.core.dependencies import get_db, get_current_user
 from app.core.API_dependencies import get_api_user, require_roles, verify_user_api_key
 from app.db.models import User, ChatLog, APIKey, UserRole
@@ -15,11 +18,8 @@ from app.services.ml import generate_response
 from app.schemas.chat import ChatRequest, MessageResponse
 
 import time
-
 import subprocess
-
 pynvml.nvmlInit()
-
 router = APIRouter()
 
 @router.get("/api/keys/list", response_model=List[APIKeyOut])
@@ -43,41 +43,6 @@ def delete_api_key(id: int, db: Session = Depends(get_db), user=Depends(get_curr
     db.delete(key)
     db.commit()
 
-@router.post("/api/generate", response_model=MessageResponse)
-def generate_with_user_key(
-
-    request: ChatRequest,
-    db: Session = Depends(get_db),
-    user=Depends(verify_user_api_key)
-):
-    start = time.time()
-    try:
-        response = generate_response(request.message)
-    except Exception:
-        raise HTTPException(status_code=500, detail="Ошибка генерации ответа")
-
-    latency = int((time.time() - start) * 1000)
-
-    log = ChatLog(
-        user_id=user.id,
-        chat_id=None,
-        api_key=user.api_key,
-        request_text=request.message,
-        response_text=response,
-        status="success",
-        latency_ms=latency
-    )
-    db.add(log)
-    db.commit()
-
-    return MessageResponse(
-        request_text=request.message,
-        response_text=response,
-        timestamp=log.timestamp,
-        latency_ms=latency,
-        chat_id=None
-    )
-
 @router.get("/models")
 def list_models():
     try:
@@ -87,3 +52,75 @@ def list_models():
         return {"models": models}
     except Exception as e:
         return {"error": str(e)}
+    
+
+
+@router.post("/api/generate", summary="Запуск запроса по API-ключу (через очередь)")
+def generate_by_api_key(
+    payload: dict = Body(...),
+    db: Session = Depends(get_db),
+):
+    user_id = payload.get("user_id")
+    api_key_str = payload.get("api_key")
+
+    if not user_id or not api_key_str:
+        raise HTTPException(status_code=400, detail="user_id и api_key обязательны")
+
+    # Проверка API-ключа
+    api_key = db.query(APIKey).filter(APIKey.user_id == user_id, APIKey.key == api_key_str).first()
+    if not api_key:
+        raise HTTPException(status_code=403, detail="Неверный ключ или пользователь")
+
+    task_payload = {
+        "user_id": user_id,
+        "api_key": api_key_str,
+        "messages": payload.get("messages", []),
+        "model": payload.get("model", "llama3"),
+        "temperature": payload.get("temperature", 1.0),
+        "max_tokens": payload.get("max_tokens", 1024),
+        "response_format": payload.get("response_format", "text"),
+        "moderation": payload.get("moderation", False),
+        "top_p": payload.get("top_p", 0.75),
+        "seed": payload.get("seed"),
+        "stop": payload.get("stop"),
+    }
+
+    task = generate_response_api_task.delay(task_payload)
+    return {"task_id": task.id}
+
+
+@router.get("/api/generate/{task_id}", summary="Получить результат по task_id")
+def get_response_by_task(task_id: str):
+    result = AsyncResult(task_id, app=celery_app)
+
+    if result.state == "PENDING":
+        return {"status": "pending"}
+    elif result.state == "FAILURE":
+        return {"status": "error", "error": str(result.result)}
+    elif result.state == "SUCCESS":
+        return {"status": "success", "response": result.result}
+    return {"status": result.state}
+
+
+@router.post("/api/generate-direct", summary="Прямой вызов без очереди (нежелательно)")
+def generate_with_api_key_direct(
+    payload: dict = Body(...),
+    db: Session = Depends(get_db),
+):
+    # Такой маршрут использовать только для отладки — без очереди, всё блокирующее
+    from app.services.ml import generate_response
+
+    user_id = payload.get("user_id")
+    api_key_str = payload.get("api_key")
+    if not user_id or not api_key_str:
+        raise HTTPException(status_code=400, detail="Missing user_id or api_key")
+
+    key = db.query(APIKey).filter(APIKey.user_id == user_id, APIKey.key == api_key_str).first()
+    if not key:
+        raise HTTPException(status_code=403, detail="Invalid API key")
+
+    try:
+        result = generate_response(payload.get("messages", []))
+        return {"response": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

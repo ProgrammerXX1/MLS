@@ -19,8 +19,10 @@ celery_app.conf.update(
 # Автоматически загружаем задачи из модуля app.tasks
 celery_app.autodiscover_tasks(['app.tasks'])
 celery_app.conf.task_routes = {
-    "app.tasks.*": {"queue": "default"},
+    "app.tasks.generate_response_task": {"queue": "default"},
+    "app.tasks.generate_response_api_task": {"queue": "api"},
 }
+
 
 # Явно импортируем задачи
 import app.tasks

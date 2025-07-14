@@ -177,7 +177,11 @@ watchEffect(() => {
 
   for (const log of logStore.logs) {
     const model = log.model
-    const date = new Date(new Date(log.created).getTime() + 5 * 60 * 60 * 1000)
+    const baseDate = new Date(log.created)
+    if (isNaN(baseDate.getTime())) continue  // ❗ пропускаем если дата невалидная
+
+    const date = new Date(baseDate.getTime() + 5 * 60 * 60 * 1000)
+
 
     let key = ''
     if (granularity.value === 'day') key = format(date, 'EEE')

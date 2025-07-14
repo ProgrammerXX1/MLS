@@ -5,11 +5,10 @@ from typing import List
 from fastapi.responses import JSONResponse
 from celery.result import AsyncResult
 from app.config.celery_worker import celery_app
-from app.services.ml import generate_response
 from app.db.models import ChatLog, User
 from app.core.dependencies import get_db, get_current_user
 from app.schemas.chat import (
-    ChatRequest, ChatLogItem, MessageResponse
+    ChatRequest, ChatLogItem
 )
 # ✅ История сообщений
 

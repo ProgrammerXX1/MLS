@@ -3,7 +3,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 import psutil
-import torch
 import secrets
 
 from app.core.dependencies import get_db, get_current_user

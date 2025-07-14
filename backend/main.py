@@ -1,9 +1,8 @@
 from fastapi import FastAPI
-from app import logs
 from fastapi.openapi.utils import get_openapi
 from fastapi.middleware.cors import CORSMiddleware
 import subprocess
-from app.routes import api_keys, chat 
+from app.routes import api_keys, chat , logs
 from app.routes import auth
 from app.db.session import engine
 from alembic.config import Config

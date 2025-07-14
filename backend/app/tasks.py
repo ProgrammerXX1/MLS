@@ -14,17 +14,17 @@ def generate_response_task(payload: dict):
     try:
         # Заглушка генерации ответа — здесь должна быть твоя модель
         response_text = generate_response(
-    messages=payload["messages"],
-    model=payload.get("model"),
-    temperature=payload.get("temperature", 1.0),
-    max_tokens=payload.get("max_tokens", 1024),
-    stream=False,
-    response_format=payload.get("response_format", "text"),
-    moderation=payload.get("moderation", False),
-    top_p=payload.get("top_p", 0.75),
-    seed=payload.get("seed"),
-    stop=payload.get("stop"),
-)
+        messages=payload["messages"],
+        model=payload.get("model"),
+        temperature=payload.get("temperature", 1.0),
+        max_tokens=payload.get("max_tokens", 1024),
+        stream=False,
+        response_format=payload.get("response_format", "text"),
+        moderation=payload.get("moderation", False),
+        top_p=payload.get("top_p", 0.75),
+        seed=payload.get("seed"),
+        stop=payload.get("stop"),
+        )
         output_tokens = len(response_text.split())  # 🔧 пример оценки
         input_tokens = sum(len(msg['content'].split()) for msg in payload["messages"])
 

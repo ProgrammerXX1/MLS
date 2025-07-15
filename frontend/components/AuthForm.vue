@@ -1,9 +1,9 @@
 <template>
-  <div class="flex min-h-screen items-center justify-center bg-gradient-to-br from-zinc-900 via-orange-900 to-amber-900 text-white relative overflow-hidden">
+  <div class="flex min-h-screen items-center justify-center bg-gradient-to-br from-zinc-900 via-green-900 to-amber-900 text-white relative overflow-hidden">
     <NeuralMesh />
-    <Card class="w-full max-w-md bg-orange-950/30 border border-amber-800/50 shadow-2xl rounded-xl backdrop-blur-lg p-6">
+    <Card class="w-full max-w-md bg-green-950/30 border border-amber-800/50 shadow-2xl rounded-xl backdrop-blur-lg p-6">
       <CardHeader>
-        <CardTitle class="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent animate-flicker">
+        <CardTitle class="text-2xl font-bold bg-gradient-to-r from-amber-400 to-green-500 bg-clip-text text-transparent animate-flicker">
           {{ isLogin ? 'Login to NeuralNet AI' : 'Register for NeuralNet AI' }}
         </CardTitle>
         <CardDescription class="text-amber-200 animate-glow-text">
@@ -19,7 +19,7 @@
               id="username"
               v-model="username"
               placeholder="you@example.com or username"
-              class="bg-orange-900/20 text-white border-amber-800/50 focus:border-amber-500 transition-all duration-300 shadow-glow"
+              class="bg-green-900/20 text-white border-amber-800/50 focus:border-amber-500 transition-all duration-300 shadow-glow"
             />
           </div>
 
@@ -30,7 +30,7 @@
               v-model="password"
               type="password"
               placeholder="Enter your password"
-              class="bg-orange-900/20 text-white border-amber-800/50 focus:border-amber-500 transition-all duration-300 shadow-glow"
+              class="bg-green-900/20 text-white border-amber-800/50 focus:border-amber-500 transition-all duration-300 shadow-glow"
             />
           </div>
 
@@ -42,7 +42,7 @@
           <Button
             :disabled="isLoading"
             @click="submit"
-            class="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white transition-all duration-300 shadow-glow"
+            class="bg-gradient-to-r from-amber-600 to-green-600 hover:from-amber-500 hover:to-green-500 text-white transition-all duration-300 shadow-glow"
           >
             <span v-if="isLoading" class="animate-pulse">
               {{ isLogin ? 'Logging in...' : 'Registering...' }}

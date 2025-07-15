@@ -6,7 +6,7 @@
         :key="item.label"
         :to="item.to"
         class="block px-2 py-1.5 rounded hover:text-red-500"
-        :class="{ 'text-orange-500 font-medium': route.path === item.to }"
+        :class="{ 'text-green-500 font-medium': route.path === item.to }"
       >
         {{ item.label }}
       </NuxtLink>

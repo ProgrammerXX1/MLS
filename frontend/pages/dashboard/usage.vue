@@ -138,7 +138,7 @@ const userStore = useUserStore()
 const currentView = ref<'cost' | 'activity'>('cost')
 const currentMonth = ref('July')
 const currentPeriod = ref(0)
-const granularity = ref<'day' | 'hour' | 'minute'>('day')
+const granularity = ref<'day' | 'hour' | 'minute'>('minute')
 
 const modelCharts = ref<ModelChartData[]>([])
 
@@ -176,18 +176,24 @@ watchEffect(() => {
   const result: Record<string, ModelChartData> = {}
 
   for (const log of logStore.logs) {
-    const model = log.model
-    const baseDate = new Date(log.created)
-    if (isNaN(baseDate.getTime())) continue  // ❗ пропускаем если дата невалидная
+    const model = log.model || 'unknown-model'
 
+    const baseDate = new Date(log.created)
+    if (isNaN(baseDate.getTime())) {
+      console.warn('⚠️ Invalid date:', log.created)
+      continue
+    }
+
+    // ⏱ +5 часов (если нужно локальное смещение)
     const date = new Date(baseDate.getTime() + 5 * 60 * 60 * 1000)
 
-
+    // 🧩 Формируем ключ агрегации
     let key = ''
-    if (granularity.value === 'day') key = format(date, 'EEE')
-    else if (granularity.value === 'hour') key = format(date, 'HH:00')
-    else if (granularity.value === 'minute') key = format(date, 'HH:mm')
+    if (granularity.value === 'day') key = format(date, 'EEE')           // Mon, Tue, ...
+    else if (granularity.value === 'hour') key = format(date, 'HH:00')   // 14:00
+    else if (granularity.value === 'minute') key = format(date, 'HH:mm') // 14:32
 
+    // ⚙️ Инициализация модели
     if (!result[model]) {
       result[model] = {
         model,
@@ -197,6 +203,7 @@ watchEffect(() => {
       }
     }
 
+    // 📊 Подсчёт токенов и запросов
     const tokens = (log.inputTokens || 0) + (log.outputTokens || 0)
     result[model].tokens += tokens
     result[model].requests[key] = (result[model].requests[key] || 0) + 1
@@ -204,7 +211,12 @@ watchEffect(() => {
   }
 
   modelCharts.value = Object.values(result)
+
+  // ✅ Отладка (можно убрать)
+  console.log('📈 Model charts:', modelCharts.value)
 })
+
+
 
 // 📊 Данные для LineChart
 const getLineChartData = (modelData: ModelChartData) => {

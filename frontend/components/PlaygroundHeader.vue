@@ -31,7 +31,7 @@
       </select>
       <button
         @click="emit('toggle-code')"
-        class="flex items-center space-x-2 px-3 py-1 rounded-md border border-red-700 text-red-700 hover:bg-red-700 hover:text-white transition text-sm"
+        class="flex items-center space-x-2 px-3 py-1 rounded-md border border-green-700 text-green-700 hover:bg-green-700 hover:text-white transition text-sm"
       >
         <Icon icon="lucide:code" class="text-sm" />
         <span>{{ showCode ? 'Hide code' : 'View code' }}</span>

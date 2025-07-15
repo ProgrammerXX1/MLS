@@ -5,7 +5,7 @@
       <template v-if="studioMessages.length === 0">
         <!-- Заголовок -->
         <div class="px-6 py-4 border-b border-neutral-800">
-          <h2 class="text-xl font-semibold text-white">🧪 Aurus</h2>
+          <h2 class="text-xl font-semibold text-white">🧪 TTC</h2>
         </div>
         <div class="text-neutral-400 text-sm space-y-2">
           <p>👋 Добро пожаловать в <strong class="text-white">Studio</strong>!</p>
@@ -46,7 +46,7 @@
       <div>
         <button
           @click="onSubmit"
-          class="px-5 py-2 text-sm rounded-full border border-white text-white hover:bg-orange-500 hover:border-orange-500 transition"
+          class="px-5 py-2 text-sm rounded-full border border-white text-white hover:bg-green-500 hover:border-green-500 transition"
         >
           Submit <span class="ml-2 text-xs text-neutral-400">Ctrl + ⏎</span>
         </button>

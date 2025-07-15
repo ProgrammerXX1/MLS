@@ -31,7 +31,8 @@ run_migrations()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "http://localhost:5173"
 ],
     # allow_origins=[
     #         PORT_SERVER,
@@ -45,8 +46,8 @@ app.add_middleware(
 
 # Роуты
 app.include_router(auth.router, prefix="/auth", tags=["Auth"])
-app.include_router(chat.router, tags=["Chat"])
-app.include_router(api_keys.router, tags=["API Keys"])
+app.include_router(chat.router, tags=["User UI"])
+app.include_router(api_keys.router, tags=["API"])
 app.include_router(logs.router, tags=["Dashboard"])
 # @app.on_event("startup")
 # def list_routes():

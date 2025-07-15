@@ -13,7 +13,7 @@
             <span class="text-sm text-neutral-300">Show Limits</span>
             <input
               type="checkbox"
-              class="form-checkbox rounded text-orange-500 bg-[#1e1e1e] border-neutral-700"
+              class="form-checkbox rounded text-green-500 bg-[#1e1e1e] border-neutral-700"
             />
           </div>
 

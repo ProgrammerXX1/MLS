@@ -73,8 +73,8 @@ import ControlPanel from '~/components/ControlPanel.vue'
 const { $api } = useNuxtApp()
 
 // UI state
-const mode = ref<'chat' | 'studio'>('chat')
-const showCode = ref(false)
+const mode = ref<'chat' | 'studio'>('studio')
+const showCode = ref(true)
 const selectedModel = ref('')
 
 // Модели и настройки

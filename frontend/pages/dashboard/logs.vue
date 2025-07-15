@@ -44,7 +44,9 @@
         </div>
 
         <!-- Logs Table -->
-        <div v-else class="bg-[#131313] border border-neutral-800 rounded-lg overflow-x-auto">
+        <div
+  v-else
+  class="bg-[#131313] border border-neutral-800 rounded-lg overflow-x-auto max-h-[80vh] overflow-y-auto">
           <table class="w-full text-xs min-w-[1100px]">
             <thead class="bg-[#1a1a1a] text-left text-neutral-400 sticky top-0 z-10">
               <tr>

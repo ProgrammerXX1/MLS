@@ -50,7 +50,7 @@
     <button
       v-if="mode === 'chat'"
       @click="submitMessages"
-      class="px-5 py-2 text-sm rounded-full border border-white text-white hover:bg-orange-500 hover:border-orange-500 transition"
+      class="px-5 py-2 text-sm rounded-full border border-white text-white hover:bg-green-500 hover:border-green-500 transition"
     >
       Submit <span class="ml-2 text-xs text-neutral-400">Ctrl + ⏎</span>
     </button>

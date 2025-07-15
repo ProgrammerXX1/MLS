@@ -67,7 +67,6 @@ def get_task_result(task_id: str):
     elif task.state == "FAILURE":
         return {"status": "failed", "error": str(task.result)}
 
-
 @router.get("/chat/history", response_model=List[ChatLogItem])
 def get_user_chat_history(
 

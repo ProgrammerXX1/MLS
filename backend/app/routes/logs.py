@@ -15,7 +15,7 @@ def get_logs(db: Session = Depends(get_db)):
 
     return [
         {
-            "created": log.timestamp.strftime('%d.%m.%Y, %H:%M:%S') if log.timestamp else "-",
+            "created": log.timestamp.isoformat() if log.timestamp else None,
             "model": safe_model(log.api_key, log.model_name),
             "apiKey": log.api_key or "",
             "code": log.code or 500,

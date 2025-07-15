@@ -1,20 +1,20 @@
 <template>
   <div class="flex flex-col h-full p-4 overflow-auto text-sm text-white">
-    <pre class="bg-[#1a1a1a] border border-neutral-700 rounded-md p-4 whitespace-pre-wrap overflow-y-auto max-h-full"><code><span class="text-purple-400">from</span> <span class="text-pink-400">aurus</span> <span class="text-purple-400">import</span> Aurus
+    <pre class="bg-[#1a1a1a] border border-neutral-700 rounded-md p-4 whitespace-pre-wrap overflow-y-auto max-h-full"><code><span class="text-purple-400">from</span> <span class="text-pink-400">TTC</span> <span class="text-purple-400">import</span> TTC
 
-client = Aurus()
+client = TTC()
 completion = client.chat.completions.create(
     model=<span class="text-green-400">"{{ currentCode }}"</span>,
     messages=
     [<span v-for="(msg, index) in messages" :key="msg.id">
         {
-        <span class="text-green-400">"role"</span>: <span class="text-orange-400">"{{ msg.role }}"</span>,
-        <span class="text-green-400">"content"</span>: <span class="text-orange-400">"{{ msg.content.replace(/\"/g, '\\\"') }}"</span>
+        <span class="text-green-400">"role"</span>: <span class="text-green-400">"{{ msg.role }}"</span>,
+        <span class="text-green-400">"content"</span>: <span class="text-green-400">"{{ msg.content.replace(/\"/g, '\\\"') }}"</span>
         }<span v-if="index !== messages.length - 1">,</span></span>
     ],
-    temperature=<span class="text-orange-400">0.6</span>,
-    max_completion_tokens=<span class="text-orange-400">4096</span>,
-    top_p=<span class="text-orange-400">0.95</span>,
+    temperature=<span class="text-green-400">0.6</span>,
+    max_completion_tokens=<span class="text-green-400">4096</span>,
+    top_p=<span class="text-green-400">0.95</span>,
     stream=<span class="text-blue-400">True</span>,
     stop=<span class="text-blue-400">None</span>,
 )
@@ -60,7 +60,7 @@ pre {
 .text-green-400 {
   color: #4ade80;
 }
-.text-orange-400 {
+.text-green-400 {
   color: #f97316;
 }
 .text-purple-400 {

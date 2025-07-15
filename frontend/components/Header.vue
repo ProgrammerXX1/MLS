@@ -2,17 +2,17 @@
   <header class="w-full bg-[#1e1e1e] h-12 px-6 flex items-center justify-between border-b border-neutral-800 relative">
     <!-- Logo -->
     <div class="flex items-center font-semibold text-xl tracking-tight">
-      <span class="text-white">Au</span><span class="text-red-700">rus</span>
+      <span class="text-white"></span><span class="text-green-700">TTC LLM</span>
     </div>
 
     <!-- Right side -->
     <div class="flex items-center space-x-8 relative">
       <!-- Navigation -->
       <nav class="flex items-center space-x-10 text-sm text-neutral-300">
-        <NuxtLink to="/" class="hover:text-red-500" :class="{ 'text-orange-500': route.path === '/' }">Playground</NuxtLink>
-        <NuxtLink to="/api_keys" class="hover:text-red-500" :class="{ 'text-orange-500': route.path === '/api_keys' }">API Keys</NuxtLink>
-        <NuxtLink to="/dashboard/logs" class="hover:text-red-500" :class="{ 'text-orange-500': route.path === '/dashboard/logs' }">Dashboard</NuxtLink>
-        <NuxtLink to="/in_dev" class="hover:text-red-500" :class="{ 'text-orange-500': route.path === '/in_dev' }">Docs</NuxtLink>
+        <NuxtLink to="/" class="hover:text-blue-500" :class="{ 'text-green-500': route.path === '/' }">Playground</NuxtLink>
+        <NuxtLink to="/api_keys" class="hover:text-blue-500" :class="{ 'text-green-500': route.path === '/api_keys' }">API Keys</NuxtLink>
+        <NuxtLink to="/dashboard/logs" class="hover:text-blue-500" :class="{ 'text-green-500': route.path === '/dashboard/logs' }">Dashboard</NuxtLink>
+        <NuxtLink to="/in_dev" class="hover:text-blue-500" :class="{ 'text-green-500': route.path === '/in_dev' }">Docs</NuxtLink>
       </nav>
 
       <!-- Settings Icon & Dropdown -->

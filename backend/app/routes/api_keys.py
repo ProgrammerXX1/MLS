@@ -19,7 +19,15 @@ from app.schemas.chat import ChatRequest, MessageResponse
 
 import time
 import subprocess
-pynvml.nvmlInit()
+
+def init_nvml():
+    try:
+        pynvml.nvmlInit()
+        return True
+    except pynvml.NVMLError_LibraryNotFound:
+        print("⚠️  NVML library not found — GPU мониторинг отключён.")
+        return False
+    
 router = APIRouter()
 
 @router.get("/api/keys/list", response_model=List[APIKeyOut])

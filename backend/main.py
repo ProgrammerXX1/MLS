@@ -9,25 +9,24 @@ from alembic.config import Config
 from alembic import command
 import os
 import logging
-import sys
+
 from dotenv import load_dotenv
 load_dotenv()
 PORT_SERVER = os.getenv("PORT_SERVER", "http://localhost")
 
 app = FastAPI()
 
-# Ожидание базы
-subprocess.run(["python", "wait_for_postgres.py"], check=True)
-
 # Миграции Alembic
-# Применение миграций
-try:
-    logging.info("📦 Применение Alembic миграций...")
-    subprocess.run(["alembic", "upgrade", "head"], check=True)
-    logging.info("✅ Alembic миграции успешно применены.")
-except subprocess.CalledProcessError as e:
-    logging.error(f"❌ Ошибка Alembic миграции: {e}")
-    sys.exit(1)
+def run_migrations():
+    try:
+        logging.info("📦 Применение Alembic миграций...")
+        subprocess.run(["alembic", "upgrade", "head"], check=True)
+        logging.info("✅ Alembic миграции успешно применены.")
+    except subprocess.CalledProcessError as e:
+        logging.error(f"❌ Ошибка Alembic миграции: {e}")
+
+# Вызов миграций до запуска приложения
+run_migrations()
 
 # CORS
 app.add_middleware(

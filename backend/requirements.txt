@@ -10,7 +10,7 @@ requests
 pydantic
 python-multipart
 psutil
-torch
 pynvml
 celery
 redis
+torch==2.7.1

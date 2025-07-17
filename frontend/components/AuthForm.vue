@@ -88,7 +88,7 @@ import { useUserStore } from '@/stores/user'
 const NeuralMesh = defineComponent({
   template: `
     <div class="absolute inset-0 opacity-50 z-0">
-      <div class="w-full h-full bg-[url('/rtx-a6000-bg.png')] bg-cover bg-center animate-pulse-slow"></div>
+      <div class="w-full h-full bg-[url('/assets/image.png')] bg-cover bg-center animate-pulse-slow"></div>
       <div class="absolute inset-0 bg-gradient-to-t from-zinc-950/80 to-transparent"></div>
     </div>
   `

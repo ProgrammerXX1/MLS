@@ -1,6 +1,6 @@
 // utils/api.ts
 export async function apiFetch(endpoint: string, options: RequestInit = {}) {
-  const baseUrl = 'http://localhost:8000' // или 'http://localhost:8000' если внешний backend
+  const baseUrl = 'http://10.121.252.227:8000' // или 'http://localhost:8000' если внешний backend
 
   const token = localStorage.getItem('access_token')
   const headers = new Headers(options.headers || {})

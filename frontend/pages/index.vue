@@ -19,7 +19,7 @@
 
           <!-- Main Panels -->
           <div class="flex flex-row flex-1 w-full min-h-0 space-x-4 items-stretch">
-            <ChatPanel
+            <chatPanel
               v-if="mode === 'chat' || mode === 'studio'"
               ref="chatPanelRef"
               :class="panelClass('chat')"
@@ -28,13 +28,13 @@
               :model="selectedModel"
               :model-settings="modelSettings"
             />
-            <StudioPanel
+            <studioPanel
               v-if="mode === 'studio'"
               ref="studioPanelRef"
               :class="panelClass('studio')"
               :on-submit="handleStudioSubmit"
             />
-            <CodePanel
+            <codePanel
               v-if="showCode"
               :class="panelClass('code')"
               :model="selectedModel"
@@ -65,9 +65,9 @@ import { useNuxtApp } from '#app'
 
 import Header from '~/components/Header.vue'
 import PlaygroundHeader from '~/components/PlaygroundHeader.vue'
-import ChatPanel from '~/components/Playground/ChatPanel.vue'
-import StudioPanel from '~/components/Playground/StudioPanel.vue'
-import CodePanel from '~/components/Playground/CodePanel.vue'
+import chatPanel from '~/components/playground/chatPanel.vue'
+import studioPanel from '~/components/playground/studioPanel.vue'
+import codePanel from '~/components/playground/codePanel.vue'
 import ControlPanel from '~/components/ControlPanel.vue'
 
 const { $api } = useNuxtApp()
@@ -95,8 +95,8 @@ const chatMessages = ref([{ id: 1, role: 'system', content: '' }])
 provide('chatMessages', chatMessages)
 
 // Панели
-const chatPanelRef = ref<InstanceType<typeof ChatPanel> | null>(null)
-const studioPanelRef = ref<InstanceType<typeof StudioPanel> | null>(null)
+const chatPanelRef = ref<InstanceType<typeof chatPanel> | null>(null)
+const studioPanelRef = ref<InstanceType<typeof studioPanel> | null>(null)
 
 const handleStudioResponse = (text: string) => {
   console.log('[index.vue] Received studio response:', text)

@@ -120,7 +120,7 @@ const logStore = useLogStore()
 // Fetch logs
 onMounted(async () => {
   try {
-    const data = await $fetch('http://localhost:8000/dash/log')
+    const data = await $fetch('http://10.121.252.227:8000/dash/log')
     logStore.setLogs(data)
   } catch (error) {
     console.error('Error fetching logs:', error)

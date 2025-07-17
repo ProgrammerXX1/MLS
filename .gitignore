@@ -12,7 +12,6 @@ backend/.mypy_cache
 backend/.pytest_cache
 
 # Общие
-.env
 *.log
 *.sqlite3
 .DS_Store

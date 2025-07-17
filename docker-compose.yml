@@ -1,7 +1,7 @@
 version: '3.9'
 
 services:
-  postgres:
+  db:
     image: postgres:15
     restart: always
     environment:
@@ -49,6 +49,9 @@ services:
     ports:
       - "3000:3000"
     restart: always
+    depends_on:
+      - backend
+
 
   celery:
     build: ./backend

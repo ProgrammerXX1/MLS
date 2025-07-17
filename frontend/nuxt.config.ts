@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   css: ['@/assets/css/tailwind.css'],
   runtimeConfig: {
     public: {
-      apiBase: 'http://0.0.0.0:8000' // ⚠️ Без https
+      apiBase: 'http://backend:8000' // ⚠️ Без https
     },
   },
   // 👇 Добавь эту часть:

@@ -63,6 +63,8 @@ services:
     depends_on:
       - backend
       - redis
+    env_file:
+      - .env
 
 volumes:
   pgdata:

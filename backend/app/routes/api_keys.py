@@ -55,7 +55,7 @@ def delete_api_key(id: int, db: Session = Depends(get_db), user=Depends(get_curr
 @router.get("/models")
 def list_models():
     try:
-        response = requests.get("http://host.docker.internal:11434/api/tags")  # для Docker
+        response = requests.get("http://10.121.252.227:11434/api/tags")  # для Docker
         if response.status_code == 200:
             models = response.json().get("models", [])
             return {"models": [m["name"] for m in models]}

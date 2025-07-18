@@ -73,13 +73,11 @@ services:
   chat-frontend:
     build:
       context: ./API_vuechat
-      dockerfile: Dockerfile
     ports:
-      - "3001:5173"  # 5173 внутри контейнера -> 3001 на хосте
+      - "3001:80"
     environment:
-      NUXT_HOST: 0.0.0.0  # если бы был Nuxt
-    volumes:
-      - ./API_vuechat:/app
+      NUXT_HOST: 0.0.0.0
+      NUXT_PORT: 3000
 
 volumes:
   pgdata:

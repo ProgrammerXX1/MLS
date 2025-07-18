@@ -1,21 +1,23 @@
 import requests
 import logging
 import os
-from dotenv import load_dotenv
 from typing import List, Dict, Optional
-
-# Загрузка переменных окружения
-load_dotenv()
-
-# Настройка подключения к Ollama
-OLLAMA_HOST = os.getenv("PORT_SERVER", "http://localhost").replace("http://", "").replace("https://", "")
-OLLAMA_PORT = os.getenv("OLLAMA_PORT", "11434")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3:latest")
-OLLAMA_URL = f"http://{OLLAMA_HOST}:{OLLAMA_PORT}/api/chat"
 
 # Логгирование
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
+
+# ✅ Получение переменных окружения с явным требованием
+try:
+    OLLAMA_HOST = os.environ["PORT_SERVER"].replace("http://", "").replace("https://", "")
+    OLLAMA_PORT = os.environ["OLLAMA_PORT"]
+    OLLAMA_MODEL = os.environ["OLLAMA_MODEL"]
+except KeyError as e:
+    raise RuntimeError(f"❌ Не найдена переменная окружения: {e}")
+
+OLLAMA_URL = f"http://{OLLAMA_HOST}:{OLLAMA_PORT}/api/chat"
+logger.info(f"📡 URL модели Ollama: {OLLAMA_URL}")
+
 
 def generate_response(
     messages: List[Dict[str, str]],
@@ -52,13 +54,16 @@ def generate_response(
     if stop:
         payload["options"]["stop"] = [stop]  # Ollama ожидает список
 
-    logger.info(f"🧪 Payload к модели: {payload}")
+    logger.info(f"🧪 Payload к модели:\n{payload}")
 
     try:
         response = requests.post(OLLAMA_URL, json=payload, timeout=60)
 
+        logger.info(f"📥 Status code: {response.status_code}")
+        logger.info(f"📥 Raw response: {response.text[:500]}")  # ограничим лог
+
         if response.status_code != 200:
-            logger.warning(f"⚠️ Неверный ответ от сервера: {response.status_code}, {response.text}")
+            logger.warning(f"⚠️ Ошибка от модели: {response.status_code}, {response.text}")
             return "⚠️ Ошибка генерации ответа от модели."
 
         data = response.json()

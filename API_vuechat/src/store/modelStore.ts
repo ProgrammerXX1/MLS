@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://your-domain.com/api' // Укажи своё внешнее API
+
 export interface Message {
   role: 'user' | 'assistant' | 'system'
   text: string
@@ -61,7 +63,7 @@ export function defaultSettings(): ModelSettings {
 
 export const useModelStore = defineStore('modelStore', {
   state: () => ({
-    models: <ModelChat[]>[
+    models: [
       { id: '1', name: 'Phi', model: 'phi:latest', avatar: '', messages: [], settings: defaultSettings() },
       { id: '2', name: 'Gemma', model: 'gemma:2b', avatar: '', messages: [], settings: defaultSettings() },
       { id: '3', name: 'Qwen 14B', model: 'qwen:14b', avatar: '', messages: [], settings: defaultSettings() },
@@ -71,7 +73,7 @@ export const useModelStore = defineStore('modelStore', {
       { id: '7', name: 'Deepseek 6.7B', model: 'deepseek-coder:6.7b', avatar: '', messages: [], settings: defaultSettings() },
       { id: '8', name: 'Deepseek (latest)', model: 'deepseek-coder:latest', avatar: '', messages: [], settings: defaultSettings() },
       { id: '9', name: 'LLaMA 3', model: 'llama3:latest', avatar: '', messages: [], settings: defaultSettings() }
-    ],
+    ] as ModelChat[],
     selectedId: '1',
     lastTaskId: ''
   }),
@@ -101,24 +103,23 @@ export const useModelStore = defineStore('modelStore', {
     },
 
     buildPayload(messages: { role: string; content: string }[]): APIPayload {
-  const chat = this.current!
-  const settings = chat.settings
+      const chat = this.current!
+      const settings = chat.settings
 
-  return {
-    user_id: 1,
-    api_key: '334d567e774a9ec89922979e2fb638bde2ba4defdce8bfb3c6251f953292e39a',
-    messages,
-    model: chat.model,
-    temperature: settings.temperature,
-    max_tokens: settings.maxTokens,
-    response_format: settings.jsonMode ? 'json' : 'text',
-    moderation: settings.moderation,
-    top_p: settings.topP,
-    seed: settings.seed || undefined,
-    stop: settings.stopSequence || undefined
-  }
-},
-
+      return {
+        user_id: 2,
+        api_key: 'f5bca09b0a796301bfc74ab06e8c551952eec9c4524e17d103e15d2c6b0b63a8',
+        messages,
+        model: chat.model,
+        temperature: settings.temperature,
+        max_tokens: settings.maxTokens,
+        response_format: settings.jsonMode ? 'json' : 'text',
+        moderation: settings.moderation,
+        top_p: settings.topP,
+        seed: settings.seed || undefined,
+        stop: settings.stopSequence || undefined
+      }
+    },
 
     async sendRequest(payload: { system: string; user: string; assistant: string }) {
       const chat = this.current
@@ -131,7 +132,6 @@ export const useModelStore = defineStore('modelStore', {
       if (payload.user) messages.push({ role: 'user', content: payload.user })
       if (payload.assistant) messages.push({ role: 'assistant', content: payload.assistant })
 
-      // Показываем каждое сообщение как JSON
       messages.forEach((msg) => {
         chat.messages.push({
           role: msg.role as 'user' | 'assistant' | 'system',
@@ -142,7 +142,6 @@ export const useModelStore = defineStore('modelStore', {
 
       const fullPayload = this.buildPayload(messages)
 
-      // Отображаем весь payload в чат
       chat.messages.push({
         role: 'system',
         text: JSON.stringify(fullPayload, null, 2),
@@ -150,7 +149,7 @@ export const useModelStore = defineStore('modelStore', {
       })
 
       try {
-        const response = await fetch('http://localhost:8000/api/generate', {
+        const response = await fetch(`${API_BASE_URL}/generate`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(fullPayload)
@@ -180,7 +179,7 @@ export const useModelStore = defineStore('modelStore', {
       if (!chat || !this.lastTaskId) return
 
       try {
-        const res = await fetch(`http://localhost:8000/api/generate/${this.lastTaskId}`)
+        const res = await fetch(`${API_BASE_URL}/generate/${this.lastTaskId}`)
         const data: APIResponse = await res.json()
 
         if (data.status === 'success') {

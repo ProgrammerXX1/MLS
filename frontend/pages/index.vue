@@ -4,7 +4,7 @@
     <Header />
     <div class="flex h-[calc(100vh-56px)] relative">
       <!-- Left Section -->
-      <div class="flex flex-col w-[85%] border-r border-neutral-800 p-6 transition-all duration-300 ease-in-out h-full bg-[#0d0d0d]">
+      <div class="flex flex-col w-[85%] border-r border-neutral-800 p-6 transition-all duration-300 ease-in-out h-full">
         <div class="flex flex-col w-full flex-1 min-h-0 space-y-4">
           <!-- Header + Mode Toggle -->
           <PlaygroundHeader
@@ -20,7 +20,7 @@
 
           <!-- Main Panels -->
           <div class="flex flex-row flex-1 w-full min-h-0 space-x-4 items-stretch">
-            <ChatPanel
+            <chatPanel
               class="bg-[#0d0d0d] text-white rounded-xl p-4 w-full"
               v-if="mode === 'chat' || mode === 'studio'"
               ref="chatPanelRef"
@@ -30,14 +30,14 @@
               :model="selectedModel"
               :model-settings="modelSettings"
             />
-            <StudioPanel
+            <studioPanel
               class="bg-[#0d0d0d] text-white rounded-xl p-4 w-full"
               v-if="mode === 'studio'"
               ref="studioPanelRef"
               :class="panelClass('studio')"
               :on-submit="handleStudioSubmit"
             />
-            <CodePanel
+            <codePanel
               class="bg-[#0d0d0d] text-white rounded-xl p-4 w-full"
               v-if="showCode"
               :class="panelClass('code')"
@@ -69,9 +69,9 @@ import { useNuxtApp } from '#app'
 
 import Header from '~/components/Header.vue'
 import PlaygroundHeader from '~/components/PlaygroundHeader.vue'
-import ChatPanel from '~/components/Playground/ChatPanel.vue'
-import StudioPanel from '~/components/Playground/StudioPanel.vue'
-import CodePanel from '~/components/Playground/CodePanel.vue'
+import chatPanel from '~/components/playground/chatPanel.vue'
+import studioPanel from '~/components/playground/studioPanel.vue'
+import codePanel from '~/components/playground/codePanel.vue'
 import ControlPanel from '~/components/ControlPanel.vue'
 
 const { $api } = useNuxtApp()
@@ -99,8 +99,8 @@ const chatMessages = ref([{ id: 1, role: 'system', content: '' }])
 provide('chatMessages', chatMessages)
 
 // Панели
-const chatPanelRef = ref<InstanceType<typeof ChatPanel> | null>(null)
-const studioPanelRef = ref<InstanceType<typeof StudioPanel> | null>(null)
+const chatPanelRef = ref<InstanceType<typeof chatPanel> | null>(null)
+const studioPanelRef = ref<InstanceType<typeof studioPanel> | null>(null)
 
 const handleStudioResponse = (text: string) => {
   console.log('[index.vue] Received studio response:', text)

@@ -17,4 +17,4 @@ ENV NUXT_PORT=3000
 EXPOSE 3000
 
 # Запускаем прод-сервер
-CMD ["npm", "run", "start"]
+CMD ["node", ".output/server/index.mjs", "--hostname", "0.0.0.0", "--port", "3000"]

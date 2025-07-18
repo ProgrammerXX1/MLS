@@ -57,7 +57,7 @@ services:
 
   celery:
     build: ./backend
-    command: celery -A app.config.celery_worker worker --loglevel=info
+    command: celery -A app.config.celery_worker worker -Q celery,api --loglevel=info
     volumes:
       - ./backend:/app
     depends_on:

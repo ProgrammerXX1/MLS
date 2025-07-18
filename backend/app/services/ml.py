@@ -34,7 +34,8 @@ def generate_response(
     """
     Отправляет список сообщений с параметрами в Ollama /api/chat
     """
-    logger.info("📨 Отправка сообщений модели:")
+    logger.info("📨 Подготовка запроса к модели...")
+
     for m in messages:
         logger.info(f" - {m['role']}: {m['content'][:100]}")
 
@@ -52,15 +53,17 @@ def generate_response(
     if seed:
         payload["options"]["seed"] = seed
     if stop:
-        payload["options"]["stop"] = [stop]  # Ollama ожидает список
+        payload["options"]["stop"] = [stop]
 
-    logger.info(f"🧪 Payload к модели:\n{payload}")
+    logger.info(f"🧪 Payload подготовлен:\n{payload}")
 
     try:
+        logger.info("🚀 Выполняем запрос к модели...")
         response = requests.post(OLLAMA_URL, json=payload, timeout=60)
+        logger.info("✅ Запрос отправлен, получен ответ")
 
         logger.info(f"📥 Status code: {response.status_code}")
-        logger.info(f"📥 Raw response: {response.text[:500]}")  # ограничим лог
+        logger.info(f"📥 Raw response: {response.text[:500]}")
 
         if response.status_code != 200:
             logger.warning(f"⚠️ Ошибка от модели: {response.status_code}, {response.text}")

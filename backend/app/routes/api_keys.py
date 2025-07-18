@@ -7,6 +7,7 @@ import secrets
 from celery.result import AsyncResult
 from app.config.celery_app import celery_app
 
+import requests
 from app.tasks import generate_response_task,  generate_response_api_task
 from app.core.dependencies import get_db, get_current_user
 from app.core.API_dependencies import get_api_user, require_roles, verify_user_api_key
@@ -54,10 +55,11 @@ def delete_api_key(id: int, db: Session = Depends(get_db), user=Depends(get_curr
 @router.get("/models")
 def list_models():
     try:
-        result = subprocess.run(["ollama", "list"], capture_output=True, text=True)
-        lines = result.stdout.strip().split("\n")[1:]  # Пропускаем заголовок
-        models = [line.split()[0] for line in lines]
-        return {"models": models}
+        response = requests.get("http://host.docker.internal:11434/api/tags")  # для Docker
+        if response.status_code == 200:
+            models = response.json().get("models", [])
+            return {"models": [m["name"] for m in models]}
+        return {"error": f"status {response.status_code}"}
     except Exception as e:
         return {"error": str(e)}
     

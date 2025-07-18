@@ -77,7 +77,8 @@ services:
     ports:
       - "5173:80"  # 5173 на хосте → 80 внутри контейнера
     environment:
-      - NODE_ENV=production
+      NUXT_HOST: 0.0.0.0
+      NUXT_PORT: 3000
 
 volumes:
   pgdata:

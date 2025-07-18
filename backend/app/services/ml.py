@@ -4,16 +4,18 @@ import os
 from dotenv import load_dotenv
 from typing import List, Dict, Optional
 
+# Загрузка переменных окружения
 load_dotenv()
 
-PORT_SERVER = os.getenv("PORT_SERVER", "http://localhost")
+# Настройка подключения к Ollama
+OLLAMA_HOST = os.getenv("PORT_SERVER", "http://localhost").replace("http://", "").replace("https://", "")
 OLLAMA_PORT = os.getenv("OLLAMA_PORT", "11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3:latest")
+OLLAMA_URL = f"http://{OLLAMA_HOST}:{OLLAMA_PORT}/api/chat"
 
+# Логгирование
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
-
-from typing import List, Dict, Optional
 
 def generate_response(
     messages: List[Dict[str, str]],
@@ -53,11 +55,7 @@ def generate_response(
     logger.info(f"🧪 Payload к модели: {payload}")
 
     try:
-        response = requests.post(
-            f"{PORT_SERVER}:{OLLAMA_PORT}/api/chat",
-            json=payload,
-            timeout=60
-        )
+        response = requests.post(OLLAMA_URL, json=payload, timeout=60)
 
         if response.status_code != 200:
             logger.warning(f"⚠️ Неверный ответ от сервера: {response.status_code}, {response.text}")

@@ -49,7 +49,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"  # 👈 это обязательно!
+      - "80:3000"  # 👈 это обязательно!
     environment:
       NUXT_HOST: 0.0.0.0
       NUXT_PORT: 3000

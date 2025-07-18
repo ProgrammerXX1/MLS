@@ -1,3 +1,5 @@
+const BASE_API_URL = "http://10.121.252.227:8000/api"; // ← Замени на свой публичный адрес (или бери из .env)
+
 export async function generateTextRequest(payload: {
   user_id: string;
   api_key: string;
@@ -11,27 +13,38 @@ export async function generateTextRequest(payload: {
   seed?: string;
   stop?: string;
 }): Promise<string> {
-  const response = await fetch('http://localhost:8000/api/generate', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  // Шаг 1 — создать задачу на генерацию
+  const createRes = await fetch(`${BASE_API_URL}/generate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
 
-  const data = await response.json();
-  const taskId = data.task_id;
-  if (!taskId) throw new Error('Task ID not returned');
+  if (!createRes.ok) {
+    const errText = await createRes.text();
+    throw new Error(`Ошибка при создании запроса: ${errText}`);
+  }
 
+  const { task_id } = await createRes.json();
+  if (!task_id) throw new Error("task_id не получен от API");
+
+  // Шаг 2 — опрашивать задачу и ждать завершения
   return new Promise((resolve, reject) => {
     const interval = setInterval(async () => {
-      const result = await fetch(`http://localhost:8000/api/generate/${taskId}`);
-      const json = await result.json();
+      try {
+        const res = await fetch(`${BASE_API_URL}/generate/${task_id}`);
+        const json = await res.json();
 
-      if (json.status === 'success') {
+        if (json.status === "success") {
+          clearInterval(interval);
+          resolve(json.response);
+        } else if (json.status === "error") {
+          clearInterval(interval);
+          reject(json.error || "Неизвестная ошибка");
+        }
+      } catch (err) {
         clearInterval(interval);
-        resolve(json.response);
-      } else if (json.status === 'error') {
-        clearInterval(interval);
-        reject(json.error || 'Unknown error');
+        reject("Ошибка при получении результата: " + err);
       }
     }, 1000);
   });

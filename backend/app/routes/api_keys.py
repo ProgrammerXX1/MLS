@@ -110,27 +110,3 @@ def get_response_by_task(task_id: str):
     elif result.state == "SUCCESS":
         return {"status": "success", "response": result.result}
     return {"status": result.state}
-
-
-@router.post("/api/generate-direct", summary="Прямой вызов без очереди (нежелательно)")
-def generate_with_api_key_direct(
-    payload: dict = Body(...),
-    db: Session = Depends(get_db),
-):
-    # Такой маршрут использовать только для отладки — без очереди, всё блокирующее
-    from app.services.ml import generate_response
-
-    user_id = payload.get("user_id")
-    api_key_str = payload.get("api_key")
-    if not user_id or not api_key_str:
-        raise HTTPException(status_code=400, detail="Missing user_id or api_key")
-
-    key = db.query(APIKey).filter(APIKey.user_id == user_id, APIKey.key == api_key_str).first()
-    if not key:
-        raise HTTPException(status_code=403, detail="Invalid API key")
-
-    try:
-        result = generate_response(payload.get("messages", []))
-        return {"response": result}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))

@@ -32,6 +32,8 @@ run_migrations()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        "http://10.121.252.227:3000",
+        "http://10.121.252.227",
     # "http://localhost:3000",
     # "http://localhost:5173"
 ],

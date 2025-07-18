@@ -16,7 +16,7 @@ celery_app.conf.update(
 )
 
 celery_app.conf.task_routes = {
-    "app.tasks.generate_response_task": {"queue": "default"},
+    "app.tasks.generate_response_task": {"queue": "celery"},
     "app.tasks.generate_response_api_task": {"queue": "api"},
 }
 

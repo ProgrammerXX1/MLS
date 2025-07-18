@@ -4,7 +4,7 @@
     <Header />
     <div class="flex h-[calc(100vh-56px)] relative">
       <!-- Left Section -->
-      <div class="flex flex-col w-[85%] border-r border-neutral-800 p-6 transition-all duration-300 ease-in-out h-full">
+      <div class="flex flex-col w-[85%] border-r border-neutral-800 p-6 transition-all duration-300 ease-in-out h-full bg-[#0d0d0d]">
         <div class="flex flex-col w-full flex-1 min-h-0 space-y-4">
           <!-- Header + Mode Toggle -->
           <PlaygroundHeader

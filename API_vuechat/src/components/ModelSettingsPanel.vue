@@ -31,11 +31,17 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
-import { useModelStore, defaultSettings, ModelSettings } from '../store/modelStore'
+import { useModelStore, defaultSettings } from '../store/modelStore'
+import type { ModelSettings } from '../store/modelStore'
 
 const store = useModelStore()
 const current = computed(() => store.current)
-const temp = ref<ModelSettings>({ ...current.value?.settings })
+const temp = ref<ModelSettings>(defaultSettings())
+
+if (current.value?.settings) {
+  temp.value = { ...current.value.settings }
+}
+
 
 watch(() => store.selectedId, () => {
   if (store.current) {

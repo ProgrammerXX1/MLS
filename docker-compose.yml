@@ -45,12 +45,14 @@ services:
     runtime: nvidia
 
   frontend:
-    build: ./frontend
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "3000:3000"
-    restart: always
-    depends_on:
-      - backend
+      - "3000:3000"  # 👈 это обязательно!
+    environment:
+      NUXT_HOST: 0.0.0.0
+      NUXT_PORT: 3000
 
 
   celery:

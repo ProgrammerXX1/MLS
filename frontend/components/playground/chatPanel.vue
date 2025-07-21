@@ -226,7 +226,7 @@ const submitMessages = async () => {
   }
 }
 async function pollTaskResult(taskId: string): Promise<string> {
-  const maxRetries = 60
+  const maxRetries = 120
   const delay = 1000 // 1 секунда между попытками
 
   for (let i = 0; i < maxRetries; i++) {
